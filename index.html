@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>城市灵魂伴侣 | City Soulmate Finder</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+forest: {
+50: '#f2fcf5',
+100: '#e1f8e8',
+300: '#86efac',
+500: '#22c55e',
+700: '#15803d',
+800: '#166534',
+900: '#064e3b', // Deep Emerald
+950: '#022c22',
+},
+sand: '#f5f5f0',
+},
+fontFamily: {
+serif: ['"Noto Serif SC"', 'serif'],
+sans: ['"Inter"', 'sans-serif'],
+},
+animation: {
+'fade-in': 'fadeIn 0.8s ease-out forwards',
+'slide-up': 'slideUp 0.6s ease-out forwards',
+'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+},
+keyframes: {
+fadeIn: {
+'0%': { opacity: '0' },
+'100%': { opacity: '1' },
+},
+slideUp: {
+'0%': { opacity: '0', transform: 'translateY(20px)' },
+'100%': { opacity: '1', transform: 'translateY(0)' },
+}
+}
+}
+}
+}
+</script>
+<style>
+body {
+background-color: #022c22;
+background-image:
+radial-gradient(at 0% 0%, hsla(150,30%,20%,1) 0, transparent 50%),
+radial-gradient(at 100% 0%, hsla(160,40%,15%,1) 0, transparent 50%),
+radial-gradient(at 100% 100%, hsla(150,30%,10%,1) 0, transparent 50%);
+color: #ecfdf5;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* Glassmorphism Cards */
+.glass-panel {
+background: rgba(255, 255, 255, 0.03);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border: 1px solid rgba(255, 255, 255, 0.1);
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.glass-btn {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(255, 255, 255, 0.1);
+transition: all 0.3s ease;
+}
+
+.glass-btn:hover {
+background: rgba(16, 185, 129, 0.2);
+border-color: rgba(16, 185, 129, 0.4);
+transform: translateY(-2px);
+}
+
+.progress-bar-fill {
+transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hide scrollbar */
+::-webkit-scrollbar {
+width: 8px;
+}
+::-webkit-scrollbar-track {
+background: #022c22;
+}
+::-webkit-scrollbar-thumb {
+background: #065f46;
+border-radius: 4px;
+}
+
+.loader-ring {
+display: inline-block;
+width: 64px;
+height: 64px;
+}
+.loader-ring:after {
+content: " ";
+display: block;
+width: 48px;
+height: 48px;
+margin: 8px;
+border-radius: 50%;
+border: 2px solid #fff;
+border-color: #10b981 transparent #10b981 transparent;
+animation: ring 1.2s linear infinite;
+}
+@keyframes ring {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body class="flex flex-col items-center justify-center font-sans antialiased selection:bg-emerald-500 selection:text-white">
+
+<!-- Header / Logo -->
+<header class="absolute top-0 left-0 w-full p-6 flex justify-between items-center z-10 opacity-80">
+<div class="flex items-center gap-2">
+<i class="fa-solid fa-tree text-emerald-400"></i>
+<span class="font-serif text-lg tracking-widest text-emerald-100">HABITAT</span>
+</div>
+<div class="text-xs text-emerald-300 tracking-wider">城市美学实验室</div>
+</header>
+
+<!-- Main Container -->
+<main id="app-container" class="w-full max-w-2xl px-6 py-12 relative min-h-[80vh] flex flex-col justify-center">
+
+<!-- SECTION 1: Intro -->
+<section id="intro-screen" class="text-center space-y-8 animate-fade-in">
+<div class="inline-block p-4 rounded-full bg-emerald-900/30 mb-4 border border-emerald-800">
+<i class="fa-regular fa-compass text-4xl text-emerald-400"></i>
+</div>
+<h1 class="text-4xl md:text-5xl font-serif font-light leading-tight text-white">
+寻找你的<br><span class="text-emerald-400 font-medium">精神栖息地</span>
+</h1>
+<p class="text-emerald-200/80 text-lg font-light leading-relaxed max-w-md mx-auto">
+城市不仅是居住的空间，更是生活方式的容器。<br>
+通过15个深度维度，为你匹配那个在等你的城市。
+</p>
+<button onclick="startQuiz()" class="mt-8 px-10 py-4 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium tracking-wide transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+开始探索旅程
+</button>
+<div class="mt-12 text-xs text-emerald-500/50">
+Data Driven Analysis · 深度生活算法
+</div>
+</section>
+
+<!-- SECTION 2: Quiz -->
+<section id="quiz-screen" class="hidden w-full">
+<!-- Progress -->
+<div class="mb-8">
+<div class="flex justify-between text-xs text-emerald-400 mb-2 font-mono">
+<span id="progress-text">01 / 15</span>
+<span>ANALYSIS IN PROGRESS</span>
+</div>
+<div class="h-1 w-full bg-emerald-900/50 rounded-full overflow-hidden">
+<div id="progress-bar" class="h-full bg-emerald-500 progress-bar-fill w-0 shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
+</div>
+</div>
+
+<!-- Question Card -->
+<div id="question-container" class="glass-panel rounded-2xl p-8 md:p-10 min-h-[400px] flex flex-col justify-center relative overflow-hidden">
+<!-- Question Text -->
+<h2 id="question-text" class="text-2xl md:text-3xl font-serif text-white mb-8 leading-snug animate-slide-up">
+Loading Question...
+</h2>
+
+<!-- Options -->
+<div id="options-container" class="space-y-4 w-full">
+<!-- Options injected via JS -->
+</div>
+</div>
+</section>
+
+<!-- SECTION 3: Loading Analysis -->
+<section id="loading-screen" class="hidden text-center space-y-6">
+<div class="loader-ring"></div>
+<h3 class="text-2xl font-serif text-emerald-100">正在构筑城市画像...</h3>
+<div id="loading-text" class="text-emerald-400/70 font-mono text-sm h-6">
+分析气候偏好...
+</div>
+</section>
+
+<!-- SECTION 4: Results -->
+<section id="results-screen" class="hidden w-full animate-fade-in pb-20">
+<div class="text-center mb-10">
+<div class="text-emerald-400 text-xs font-mono tracking-[0.2em] mb-2 uppercase">Your Match</div>
+<h2 class="text-3xl md:text-4xl font-serif text-white">测评报告</h2>
+</div>
+
+<!-- Analysis Text -->
+<div class="glass-panel rounded-xl p-6 mb-10 border-l-4 border-emerald-500">
+<p id="analysis-text" class="text-emerald-100 leading-relaxed font-light">
+<!-- Analysis injected here -->
+</p>
+</div>
+
+<!-- Top 3 Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12" id="top-cities-container">
+<!-- City Cards Injected Here -->
+</div>
+
+<div class="flex justify-center gap-4">
+<button onclick="location.reload()" class="glass-btn px-8 py-3 rounded-full text-sm text-emerald-200 hover:text-white">
+<i class="fa-solid fa-rotate-right mr-2"></i>重新测试
+</button>
+</div>
+</section>
+
+</main>
+
+<!-- Background Elements for Atmosphere -->
+<div class="fixed top-20 left-10 w-64 h-64 bg-emerald-600/10 rounded-full blur-[80px] pointer-events-none"></div>
+<div class="fixed bottom-20 right-10 w-96 h-96 bg-emerald-400/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+<script>
+// --- 1. DATA: Cities Database & Configuration ---
+// Attributes: 0-10 scale
+// nature: 自然环境, career: 职业机会, pace: 生活节奏(10=fast, 0=slow),
+// culture: 文化底蕴, cost: 生活成本(10=high, 0=low), modern: 现代便利度,
+// climate: 气候(10=hot/humid, 0=cold/dry), food: 美食指数
+const cities = [
+{ name: "上海", tags: "魔都/机遇/精致", desc: "极致的便利与国际化视野，适合野心勃勃且追求生活品质的你。", matchReason: "魔都的机遇与精致生活，与你的职业与品味追求高度契合。", scores: { nature: 4, career: 10, pace: 10, culture: 8, cost: 10, modern: 10, climate: 6, safety: 9 } },
+{ name: "成都", tags: "安逸/美食/包容", desc: "在快慢之间找到了完美平衡，既有烟火气又不失发展机遇。", matchReason: "安逸、美食与包容氛围，正对你的生活节奏与烟火气偏好。", scores: { nature: 6, career: 7, pace: 4, culture: 9, cost: 6, modern: 8, climate: 5, safety: 8 } },
+{ name: "大理", tags: "自由/山水/治愈", desc: "逃离喧嚣的终极归宿，苍山洱海畔的理想主义栖息地。", matchReason: "苍山洱海的自由与治愈，契合你对自然与慢生活的向往。", scores: { nature: 10, career: 2, pace: 0, culture: 7, cost: 3, modern: 4, climate: 7, safety: 7 } },
+{ name: "深圳", tags: "年轻/搞钱/效率", desc: "不仅是搞钱之都，更是绿化覆盖极高的花园城市，效率至上。", matchReason: "年轻、效率与搞钱氛围，与你的进取心与事业心同频。", scores: { nature: 7, career: 10, pace: 10, culture: 3, cost: 9, modern: 10, climate: 8, safety: 9 } },
+{ name: "杭州", tags: "数字/江南/雅致", desc: "互联网基因与千年古韵的结合，适合追求新经济与生活美学的人。", matchReason: "数字活力与江南雅致并存，适合追求事业与生活美学的你。", scores: { nature: 8, career: 9, pace: 8, culture: 9, cost: 8, modern: 9, climate: 6, safety: 9 } },
+{ name: "长沙", tags: "娱乐/热辣/不夜城", desc: "房价友好，娱乐至死，适合喜欢热闹、热爱美食的夜猫子。", matchReason: "房价友好、娱乐至上的不夜城，与你的性价比与热闹偏好匹配。", scores: { nature: 5, career: 6, pace: 6, culture: 7, cost: 5, modern: 7, climate: 6, safety: 7 } },
+{ name: "北京", tags: "底蕴/权力/艺术", desc: "厚重的历史与最顶尖的资源，适合有大格局或深耕文化艺术的人。", matchReason: "底蕴、资源与艺术氛围，与你的格局或文化追求契合。", scores: { nature: 3, career: 10, pace: 9, culture: 10, cost: 10, modern: 9, climate: 2, safety: 10 } },
+{ name: "三亚", tags: "海浪/度假/躺平", desc: "永远的夏天，适合通过远程工作实现海边生活梦想的人。", matchReason: "永远的夏天与海边躺平，适合想要度假感与自然的人。", scores: { nature: 9, career: 3, pace: 1, culture: 2, cost: 7, modern: 5, climate: 10, safety: 7 } },
+{ name: "重庆", tags: "赛博/立体/江湖", desc: "8D魔幻城市，充满江湖义气与层次感，适合性格豪爽的探索者。", matchReason: "8D魔幻与江湖气，与你的探索欲与直爽性格匹配。", scores: { nature: 6, career: 6, pace: 5, culture: 8, cost: 5, modern: 7, climate: 6, safety: 7 } },
+{ name: "苏州", tags: "温婉/园林/外企", desc: "古典与工业的完美双面绣，生活由于，富足且低调。", matchReason: "温婉园林与外企机会，适合追求雅致与平衡的你。", scores: { nature: 7, career: 8, pace: 5, culture: 10, cost: 7, modern: 8, climate: 6, safety: 9 } },
+{ name: "广州", tags: "务实/早茶/生活", desc: "一线城市中最具生活气息的地方，包容务实，丰俭由人。", matchReason: "务实早茶与生活气息，一线里最包容、丰俭由人。", scores: { nature: 5, career: 9, pace: 8, culture: 8, cost: 8, modern: 9, climate: 9, safety: 8 } },
+{ name: "青岛", tags: "大海/啤酒/欧陆", desc: "红瓦绿树，碧海蓝天，适合向往海滨生活但需要北方四季的人。", matchReason: "红瓦绿树碧海蓝天，北方海滨与四季分明兼顾。", scores: { nature: 8, career: 6, pace: 4, culture: 6, cost: 6, modern: 7, climate: 4, safety: 9 } }
+];
+
+// User Profile State
+let userScores = {
+nature: 5, career: 5, pace: 5, culture: 5, cost: 5, modern: 5, climate: 5, safety: 5
+};
+
+// --- 2. QUESTIONS (15 Questions) ---
+// Each option modifies the userScores
+const questions = [
+{
+q: "周末早晨，你理想的醒来方式是？",
+options: [
+{ text: "被窗外的鸟鸣唤醒，看见青山绿水", effects: { nature: 2, pace: -2 } },
+{ text: "睡到自然醒，点个外卖开始刷剧", effects: { pace: -1, modern: 1 } },
+{ text: "闹钟响起，去参加晨间瑜伽或各种展览", effects: { pace: 1, culture: 1, modern: 1 } },
+{ text: "早起处理几封工作邮件，充满成就感", effects: { career: 2, pace: 2 } }
+]
+},
+{
+q: "对于工作的态度，你更倾向于？",
+options: [
+{ text: "我要在行业顶端，高压高回报", effects: { career: 3, pace: 2, cost: 1 } },
+{ text: "工作是为了生活，拒绝无意义加班", effects: { career: -1, pace: -2 } },
+{ text: "我想做数字游民，只要有网在哪都行", effects: { modern: 1, nature: 1 } },
+{ text: "稳定最重要，体制内或大企业", effects: { career: 1, safety: 2 } }
+]
+},
+{
+q: "如果必须忍受一种气候缺点，你选择？",
+options: [
+{ text: "冬天湿冷，但空气湿润皮肤好", effects: { climate: 2 } }, // 偏南/中
+{ text: "夏天闷热，但冬天温暖如春", effects: { climate: 3 } }, // 偏南
+{ text: "空气干燥，但四季分明有暖气", effects: { climate: -2 } }, // 偏北
+{ text: "只要不是一直下雨，我都能接受", effects: { climate: 0 } }
+]
+},
+{
+q: "你对“居住成本”的心理防线是？",
+options: [
+{ text: "为了梦想，我可以接受高房租/高房价", effects: { cost: 3, career: 1 } },
+{ text: "我可以租房，但生活质量不能降", effects: { cost: 1, modern: 1 } },
+{ text: "我一定要买得起房，不想背负巨额房贷", effects: { cost: -3, pace: -1 } },
+{ text: "去物价低的地方，实现财务自由", effects: { cost: -2, nature: 1 } }
+]
+},
+{
+q: "下班后，你更想去哪里？",
+options: [
+{ text: "先锋话剧院、艺术展或Livehouse", effects: { culture: 3, modern: 1 } },
+{ text: "热闹的夜市，吃路边摊喝啤酒", effects: { culture: 1, pace: -1, modern: -1 } },
+{ text: "安静的公园步道或海边散步", effects: { nature: 2, pace: -2 } },
+{ text: "高端商场或精致的Bistro", effects: { modern: 2, cost: 1 } }
+]
+},
+{
+q: "你如何看待“便利店”和“外卖”？",
+options: [
+{ text: "我的命是它们给的，必须24小时极其发达", effects: { modern: 3, pace: 1 } },
+{ text: "重要，但偶尔自己做饭更有趣", effects: { modern: 1 } },
+{ text: "不重要，我更喜欢去菜市场买新鲜食材", effects: { modern: -2, pace: -2 } },
+{ text: "无所谓，我适应能力很强", effects: { modern: 0 } }
+]
+},
+{
+q: "你更喜欢哪种社交氛围？",
+options: [
+{ text: "精英聚会，交换资源和名片", effects: { career: 2, pace: 1 } },
+{ text: "约三五好友打麻将、喝茶", effects: { pace: -2, culture: 1 } },
+{ text: "很多年轻人，有很多新鲜的社群活动", effects: { modern: 2, culture: 1 } },
+{ text: "不需要太多社交，社恐友好型", effects: { pace: -1, safety: 1 } }
+]
+},
+{
+q: "对于城市的“历史感”，你的看法是？",
+options: [
+{ text: "非常重要，我喜欢住在古迹旁边", effects: { culture: 3 } },
+{ text: "喜欢新旧交替的感觉", effects: { culture: 1, modern: 1 } },
+{ text: "不重要，我更喜欢全新的摩登大楼", effects: { modern: 3, culture: -2 } },
+{ text: "只要街道干净整洁就行", effects: { safety: 1, modern: 1 } }
+]
+},
+{
+q: "你对自然景观的偏好是？",
+options: [
+{ text: "我一定要看海！大海是信仰", effects: { nature: 2, climate: 2 } },
+{ text: "喜欢连绵的山脉和森林", effects: { nature: 2, climate: -1 } },
+{ text: "喜欢平原，视野开阔", effects: { nature: 0 } },
+{ text: "城市里的公园就足够了", effects: { nature: -1, modern: 1 } }
+]
+},
+{
+q: "面对堵车和拥挤的地铁，你的反应是？",
+options: [
+{ text: "极度焦虑，想逃离", effects: { pace: -2, modern: -1 } },
+{ text: "习惯了，大城市都这样", effects: { pace: 2, modern: 1 } },
+{ text: "所以我选择开车，或者住公司附近", effects: { cost: 1 } },
+{ text: "无法接受，我甚至希望城市小一点", effects: { pace: -3, modern: -2 } }
+]
+},
+{
+q: "你对于“安全感”的定义？",
+options: [
+{ text: "摄像头多，治安好，晚上敢出门", effects: { safety: 3 } },
+{ text: "收入高，存款多才有安全感", effects: { career: 2, cost: 1 } },
+{ text: "有亲人朋友在身边", effects: { culture: 1 } }, // 隐性关联
+{ text: "生活节奏慢，没有被淘汰的焦虑", effects: { pace: -2, safety: 1 } }
+]
+},
+{
+q: "如果让你创业，你会选择？",
+options: [
+{ text: "高科技、互联网、金融", effects: { career: 3, modern: 2 } },
+{ text: "开个民宿、咖啡馆或书店", effects: { pace: -2, nature: 1, culture: 1 } },
+{ text: "做自媒体、独立创作者", effects: { modern: 1, culture: 1 } },
+{ text: "做小本生意，踏实过日子", effects: { cost: -1, pace: -1 } }
+]
+},
+{
+q: "你理想中的饮食口味是？",
+options: [
+{ text: "无辣不欢，重口味", effects: { climate: 1 } }, // 辣通常关联潮湿地区
+{ text: "清淡精致，注重食材本味", effects: { climate: 2, culture: 1 } }, // 粤/苏
+{ text: "碳水大户，面食为主", effects: { climate: -2 } }, // 北方
+{ text: "国际化口味，什么都吃", effects: { modern: 2 } }
+]
+},
+{
+q: "你希望你的邻居是？",
+options: [
+{ text: "本地大爷大妈，有人情味", effects: { culture: 2, modern: -1 } },
+{ text: "来自五湖四海的年轻人", effects: { modern: 2, culture: -1 } },
+{ text: "高知群体，素质高", effects: { career: 1, modern: 1 } },
+{ text: "互不打扰，谁也不认识谁", effects: { pace: 1, safety: 1 } }
+]
+},
+{
+q: "最后一个问题，你现在的状态更接近？",
+options: [
+{ text: "渴望冲刺，证明自己", effects: { career: 3, pace: 2 } },
+{ text: "略感疲惫，想要疗愈", effects: { pace: -3, nature: 2 } },
+{ text: "寻找平衡，稳中求进", effects: { pace: 0, career: 1 } },
+{ text: "享受当下，快乐至上", effects: { pace: -1, culture: 1 } }
+]
+}
+];
+
+// --- 3. LOGIC & UI CONTROL ---
+let currentQuestionIndex = 0;
+
+function startQuiz() {
+document.getElementById('intro-screen').classList.add('hidden');
+document.getElementById('quiz-screen').classList.remove('hidden');
+document.getElementById('quiz-screen').classList.add('animate-fade-in');
+renderQuestion();
+}
+
+function renderQuestion() {
+const qData = questions[currentQuestionIndex];
+const qText = document.getElementById('question-text');
+const optionsContainer = document.getElementById('options-container');
+const progressText = document.getElementById('progress-text');
+const progressBar = document.getElementById('progress-bar');
+
+// Animation reset
+qText.classList.remove('animate-slide-up');
+void qText.offsetWidth; // trigger reflow
+qText.classList.add('animate-slide-up');
+
+// Update Text
+progressText.innerText = `${String(currentQuestionIndex + 1).padStart(2, '0')} / ${questions.length}`;
+progressBar.style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+qText.innerText = qData.q;
+
+// Generate Options
+optionsContainer.innerHTML = '';
+qData.options.forEach((opt, index) => {
+const btn = document.createElement('button');
+btn.className = `glass-btn w-full p-4 md:p-5 text-left text-emerald-100 rounded-xl flex items-center group animate-slide-up`;
+btn.style.animationDelay = `${index * 100}ms`;
+btn.innerHTML = `
+<div class="w-6 h-6 rounded-full border border-emerald-500/50 mr-4 flex items-center justify-center group-hover:bg-emerald-500 transition-colors">
+<div class="w-2 h-2 bg-white rounded-full opacity-0 group-hover:opacity-100"></div>
+</div>
+<span class="text-lg font-light">${opt.text}</span>
+`;
+btn.onclick = () => handleAnswer(opt.effects);
+optionsContainer.appendChild(btn);
+});
+}
+
+function handleAnswer(effects) {
+// Update scores
+for (let key in effects) {
+if (userScores.hasOwnProperty(key)) {
+userScores[key] += effects[key];
+}
+}
+
+currentQuestionIndex++;
+const progressBar = document.getElementById('progress-bar');
+progressBar.style.width = `${((currentQuestionIndex) / questions.length) * 100}%`;
+
+if (currentQuestionIndex < questions.length) {
+setTimeout(() => {
+renderQuestion();
+}, 400);
+} else {
+setTimeout(() => {
+showLoading();
+}, 400);
+}
+}
+
+function showLoading() {
+document.getElementById('quiz-screen').classList.add('hidden');
+document.getElementById('loading-screen').classList.remove('hidden');
+document.getElementById('loading-screen').classList.add('animate-fade-in');
+
+const loadingTexts = [
+"正在分析您的生活节奏...",
+"正在比对气候数据...",
+"正在计算职业发展潜力...",
+"正在寻找文化共鸣...",
+"生成最终报告..."
+];
+
+let step = 0;
+const textEl = document.getElementById('loading-text');
+const interval = setInterval(() => {
+if (step < loadingTexts.length) {
+textEl.innerText = loadingTexts[step];
+textEl.classList.add('animate-pulse');
+step++;
+} else {
+clearInterval(interval);
+calculateAndShowResults();
+}
+}, 800);
+}
+
+function calculateAndShowResults() {
+// Algorithm: Weighted Difference
+// Calculate distance between userScores and city.scores
+
+const results = cities.map(city => {
+let diff = 0;
+// Weights can be adjusted based on extreme user values (if user cares A LOT about cost, cost weighs more)
+for (let key in city.scores) {
+let userVal = userScores[key];
+// Normalize userVal roughly to 0-10 range (simple clamp not fully needed due to logic but good for safety)
+// The quiz logic adds/subtracts from 5. Range approx 0-10.
+let d = (userVal - city.scores[key]);
+diff += d * d; // Euclidean-ish
+}
+return { city: city, score: diff };
+});
+
+// Sort by lowest difference
+results.sort((a, b) => a.score - b.score);
+const top3 = results.slice(0, 3);
+
+// Render Results
+document.getElementById('loading-screen').classList.add('hidden');
+document.getElementById('results-screen').classList.remove('hidden');
+
+// Generate Deep Analysis Text
+const analysisEl = document.getElementById('analysis-text');
+let analysisHtml = `经过深度分析，您的灵魂底色倾向于<strong class="text-white border-b border-emerald-500 pb-1 mx-1">${userScores.pace < 4 ? '慢节奏与内省' : (userScores.pace > 7 ? '高效与进取' : '平衡与安稳')}</strong>。`;
+
+if (userScores.nature > 7) analysisHtml += `您对自然的渴望极为强烈，水泥森林无法圈养您的灵魂。`;
+else if (userScores.career > 8) analysisHtml += `您目前处于事业爆发期，不仅需要居住地，更需要一个能承载野心的战场。`;
+else if (userScores.culture > 7) analysisHtml += `您对文化底蕴有着极高的挑剔度，不仅要生活，还要诗意。`;
+
+if (userScores.cost < 3) analysisHtml += `同时，您非常理智地希望摆脱高成本的生活压力，追求性价比极高的人生。`;
+
+analysisHtml += `<br><br>基于这些维度，以下三座城市最懂你：`;
+analysisEl.innerHTML = analysisHtml;
+
+// Render Cards
+const container = document.getElementById('top-cities-container');
+container.innerHTML = '';
+
+top3.forEach((item, index) => {
+const city = item.city;
+const delay = index * 200;
+// 每个城市使用其专属推荐理由（根据城市特点）
+const reason = city.matchReason || "综合匹配度与你的偏好高度一致。";
+
+const card = document.createElement('div');
+card.className = `glass-panel rounded-2xl p-6 relative overflow-hidden transform hover:-translate-y-2 transition-all duration-300 animate-slide-up`;
+card.style.animationDelay = `${delay}ms`;
+
+// Rank Badge
+const badgeColor = index === 0 ? 'bg-emerald-500 text-white' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700';
+
+card.innerHTML = `
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div>
+<span class="text-xs font-mono mb-1 block text-emerald-400">NO.0${index + 1} RECOMMENDED</span>
+<h3 class="text-3xl font-serif text-white">${city.name}</h3>
+</div>
+<div class="${badgeColor} px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+${Math.floor(100 - item.score/2)}% 匹配
+</div>
+</div>
+
+<div class="flex flex-wrap gap-2 mb-4">
+${city.tags.split('/').map(tag => `<span class="px-2 py-1 text-xs rounded bg-emerald-500/10 text-emerald-200 border border-emerald-500/20">${tag}</span>`).join('')}
+</div>
+
+<p class="text-emerald-100/80 text-sm leading-relaxed mb-4 border-t border-emerald-500/20 pt-4">
+${city.desc}
+</p>
+
+<div class="bg-black/20 rounded-lg p-3">
+<div class="text-xs text-emerald-400 mb-1"><i class="fa-solid fa-check-circle mr-1"></i>推荐理由</div>
+<div class="text-sm text-white font-light">${reason}</div>
+</div>
+`;
+container.appendChild(card);
+});
+}
+</script>
+</body>
+</html>

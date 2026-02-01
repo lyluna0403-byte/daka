@@ -162,8 +162,13 @@ Data Driven Analysis · 深度生活算法
 </div>
 <div class="h-1 w-full bg-emerald-900/50 rounded-full overflow-hidden">
 <div id="progress-bar" class="h-full bg-emerald-500 progress-bar-fill w-0 shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
-</div>
-</div>
+        </div>
+        <div class="mt-4">
+          <button id="back-btn" onclick="prevQuestion()" class="hidden text-emerald-400 text-xs hover:text-emerald-300 transition-colors flex items-center">
+            <i class="fa-solid fa-arrow-left mr-2"></i>返回上一题
+          </button>
+        </div>
+      </div>
 
 <!-- Question Card -->
 <div id="question-container" class="glass-panel rounded-2xl p-8 md:p-10 min-h-[400px] flex flex-col justify-center relative overflow-hidden">
@@ -388,12 +393,36 @@ options: [
 
 // --- 3. LOGIC & UI CONTROL ---
 let currentQuestionIndex = 0;
+let historyStack = [];
 
 function startQuiz() {
-document.getElementById('intro-screen').classList.add('hidden');
-document.getElementById('quiz-screen').classList.remove('hidden');
-document.getElementById('quiz-screen').classList.add('animate-fade-in');
+    // Reset state
+    currentQuestionIndex = 0;
+    historyStack = [];
+    userScores = { nature: 5, career: 5, pace: 5, culture: 5, cost: 5, modern: 5, climate: 5, safety: 5 };
+
+    document.getElementById('intro-screen').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.remove('hidden');
+    document.getElementById('quiz-screen').classList.add('animate-fade-in');
+    renderQuestion();
+}
+
+function prevQuestion() {
+if (currentQuestionIndex > 0 && historyStack.length > 0) {
+// Revert last action
+const lastAction = historyStack.pop();
+const effects = lastAction.effects;
+
+// Revert scores
+for (let key in effects) {
+if (userScores.hasOwnProperty(key)) {
+userScores[key] -= effects[key];
+}
+}
+
+currentQuestionIndex--;
 renderQuestion();
+}
 }
 
 function renderQuestion() {
@@ -402,6 +431,14 @@ const qText = document.getElementById('question-text');
 const optionsContainer = document.getElementById('options-container');
 const progressText = document.getElementById('progress-text');
 const progressBar = document.getElementById('progress-bar');
+const backBtn = document.getElementById('back-btn');
+
+// Back button visibility
+if (currentQuestionIndex > 0) {
+backBtn.classList.remove('hidden');
+} else {
+backBtn.classList.add('hidden');
+}
 
 // Animation reset
 qText.classList.remove('animate-slide-up');
@@ -431,6 +468,11 @@ optionsContainer.appendChild(btn);
 }
 
 function handleAnswer(effects) {
+// Record history
+historyStack.push({
+effects: effects
+});
+
 // Update scores
 for (let key in effects) {
 if (userScores.hasOwnProperty(key)) {

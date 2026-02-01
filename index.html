@@ -4,9 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>城市灵魂伴侣 | City Soulmate Finder</title>
+<!-- CDN 替换为国内更稳定的源 -->
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<!-- 移除 Google Fonts 以避免在微信/国内网络环境下加载阻塞 -->
+<style>
+/* 定义系统默认字体栈，确保加载速度 */
+:root {
+--font-serif: "Noto Serif SC", "Songti SC", "SimSun", "Times New Roman", serif;
+--font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+</style>
 <script>
 tailwind.config = {
 theme: {
@@ -25,8 +33,8 @@ forest: {
 sand: '#f5f5f0',
 },
 fontFamily: {
-serif: ['"Noto Serif SC"', 'serif'],
-sans: ['"Inter"', 'sans-serif'],
+serif: ['var(--font-serif)'],
+sans: ['var(--font-sans)'],
 },
 animation: {
 'fade-in': 'fadeIn 0.8s ease-out forwards',

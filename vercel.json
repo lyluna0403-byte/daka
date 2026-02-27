@@ -1,0 +1,13 @@
+{
+  "cleanUrls": false,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/打卡工具/index.html"
+    },
+    {
+      "source": "/静好打卡工具.html",
+      "destination": "/打卡工具/index.html"
+    }
+  ]
+}

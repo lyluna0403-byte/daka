@@ -33,12 +33,13 @@
         }
     </script>
     <style>
-        html { font-size: 18px; }
+        html { font-size: 17px; }
 
         body {
             background-color: #F8FAFC; /* Slate 50 更干净的浅灰蓝底色 */
             color: #0F172A;
             overflow-x: hidden;
+            min-height: 100dvh;
         }
 
         /* 动态毛玻璃背景球 - 高饱和炫彩色调 */
@@ -138,8 +139,20 @@
         }
 
         .app-shell {
-            width: min(92vw, 1360px);
-            max-height: min(92vh, 960px);
+            width: min(96vw, 1520px);
+            height: min(94dvh, 980px);
+            max-height: none;
+            margin: 0 auto;
+        }
+
+        .app-sidebar {
+            flex: 0 0 clamp(260px, 22vw, 330px);
+            min-width: 0;
+        }
+
+        .app-main {
+            min-width: 0;
+            padding: clamp(1rem, 2.1vw, 2.1rem) clamp(1rem, 2.2vw, 2.5rem);
         }
 
         /* Mobile-only navigation defaults (hidden on desktop/tablet) */
@@ -150,22 +163,22 @@
         }
 
         @media (min-width: 1200px) {
-            html { font-size: 20px; }
+            html { font-size: 18px; }
             .app-shell {
-                width: min(90vw, 1320px);
-                max-height: min(86vh, 880px);
+                width: min(95vw, 1500px);
+                height: min(92dvh, 960px);
                 border-radius: 2.2rem;
             }
             .app-sidebar {
                 background: linear-gradient(180deg, rgba(236, 242, 255, 0.88), rgba(231, 238, 255, 0.72));
-                padding: 1.5rem 1.25rem;
+                padding: 1.5rem 1.35rem;
             }
             .app-sidebar nav button {
                 font-size: 1.08rem;
             }
             .app-main {
                 background: linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.08));
-                padding-top: 1.7rem;
+                padding-top: 1.6rem;
             }
             #view-checkin,
             #view-stats,
@@ -191,16 +204,21 @@
         @media (max-width: 1024px) {
             .app-shell {
                 width: 100%;
-                max-height: none;
+                height: auto;
+                min-height: calc(100dvh - 1rem);
+                border-radius: 1.35rem;
+            }
+            .app-main {
+                padding: 1rem;
             }
         }
 
         @media (max-width: 768px) {
             html {
-                font-size: 16px;
+                font-size: 15px;
             }
             .app-shell {
-                min-height: calc(100vh - 0.75rem);
+                min-height: calc(100dvh - 0.75rem);
                 border-radius: 1.25rem;
             }
             .app-main {
@@ -271,7 +289,7 @@
 
         @media (max-height: 620px) and (orientation: landscape) {
             html {
-                font-size: 15px;
+                font-size: 14px;
             }
             body {
                 padding: 0.25rem;
@@ -298,7 +316,7 @@
     <div class="bg-shape shape-3"></div>
 
     <!-- 主容器 -->
-    <div class="app-shell glass-panel w-full min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-2rem)] lg:h-[min(92vh,960px)] rounded-[2rem] flex flex-col md:flex-row overflow-hidden relative">
+    <div class="app-shell glass-panel rounded-[2rem] flex flex-col md:flex-row overflow-hidden relative">
         <!-- 手机端侧边栏抽屉 -->
         <aside id="mobile-drawer" class="absolute left-0 top-0 h-full z-50 bg-white/95 backdrop-blur-xl shadow-xl transition-transform duration-300 w-[72px] -translate-x-full">
             <div class="h-full flex flex-col p-3">
@@ -332,7 +350,7 @@
         <div id="mobile-drawer-mask" onclick="toggleMobileDrawer(false)" class="absolute inset-0 z-40 bg-black/25 opacity-0 pointer-events-none transition-opacity duration-300"></div>
         
         <!-- 左侧导航栏 -->
-        <aside class="app-sidebar hidden md:flex w-full md:w-64 lg:w-72 border-b md:border-b-0 md:border-r border-white/60 p-4 sm:p-5 lg:p-6 flex-col justify-between z-10">
+        <aside class="app-sidebar hidden md:flex border-b md:border-b-0 md:border-r border-white/60 flex-col justify-between z-10">
             <div>
                 <div class="flex items-center gap-3 mb-12">
                     <div class="w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center text-brand-main shadow-inner">
@@ -377,7 +395,7 @@
         </aside>
 
         <!-- 右侧内容区 -->
-        <main class="app-main flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto z-10 relative">
+        <main class="app-main flex-1 overflow-y-auto z-10 relative">
             <div id="mobile-topbar" class="hidden items-center gap-3 mb-3">
                 <button id="mobile-menu-toggle" onclick="toggleMobileDrawer(true)" class="w-11 h-11 rounded-xl bg-white/85 border border-white text-brand-main items-center justify-center shadow flex">
                     <i class="ph ph-list text-2xl"></i>
@@ -404,7 +422,7 @@
                 </header>
 
                 <!-- 新增：周日历视图 -->
-                <div class="mb-6 bg-white/40 p-3 sm:p-4 rounded-2xl border border-white/60 backdrop-blur-md flex items-center justify-between gap-1 overflow-x-auto" id="weekly-calendar">
+                <div class="mb-6 bg-white/40 p-3 sm:p-4 rounded-2xl border border-white/60 backdrop-blur-md flex items-center justify-between gap-1 overflow-x-auto overflow-y-visible min-h-[84px]" id="weekly-calendar">
                     <!-- 动态生成的周日历将渲染在这里 -->
                 </div>
 
@@ -659,13 +677,13 @@
                 const isSelected = dateStr === state.selectedDateStr;
                 
                 const dayDiv = document.createElement('div');
-                dayDiv.className = `flex flex-col items-center justify-center flex-1 min-w-[56px] py-1 cursor-pointer rounded-xl transition-all ${isSelected ? 'bg-brand-light/50' : 'hover:bg-white/40'}`;
+                dayDiv.className = `flex flex-col items-center justify-center flex-1 min-w-[58px] py-1.5 cursor-pointer rounded-xl transition-all ${isSelected ? 'bg-brand-light/50' : 'hover:bg-white/40'}`;
                 dayDiv.onclick = () => setSelectedDate(dateStr);
                 
                 // 圆形高亮逻辑：如果今天，使用主题色圆底和白字；否则为毛玻璃白底圆
                 dayDiv.innerHTML = `
-                    <span class="text-xs font-semibold mb-1.5 ${(isToday || isSelected) ? 'text-brand-main' : 'text-brand-text/50'}">周${weekDays[i]}</span>
-                    <div class="w-10 h-10 flex items-center justify-center rounded-full font-bold text-lg transition-all ${isSelected ? 'bg-brand-main text-white shadow-lg shadow-brand-main/40' : (isToday ? 'bg-brand-light text-brand-main border border-brand-main/20' : 'text-brand-dark bg-white/40 border border-white/60 hover:bg-white/80')}">
+                    <span class="text-[11px] leading-none font-semibold mb-1 ${(isToday || isSelected) ? 'text-brand-main' : 'text-brand-text/50'}">周${weekDays[i]}</span>
+                    <div class="w-9 h-9 flex items-center justify-center rounded-full leading-none font-bold text-base transition-all ${isSelected ? 'bg-brand-main text-white shadow-lg shadow-brand-main/40' : (isToday ? 'bg-brand-light text-brand-main border border-brand-main/20' : 'text-brand-dark bg-white/40 border border-white/60 hover:bg-white/80')}">
                         ${dayNum}
                     </div>
                 `;

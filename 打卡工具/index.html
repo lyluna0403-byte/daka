@@ -142,6 +142,13 @@
             max-height: min(92vh, 960px);
         }
 
+        /* Mobile-only navigation defaults (hidden on desktop/tablet) */
+        #mobile-drawer,
+        #mobile-drawer-mask,
+        #mobile-topbar {
+            display: none;
+        }
+
         @media (min-width: 1200px) {
             html { font-size: 20px; }
             .app-shell {

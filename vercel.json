@@ -1,13 +1,20 @@
 {
   "cleanUrls": false,
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/",
-      "destination": "/打卡工具/index.html"
+      "source": "/打卡工具",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/打卡工具/index.html",
+      "destination": "/",
+      "permanent": true
     },
     {
       "source": "/静好打卡工具.html",
-      "destination": "/打卡工具/index.html"
+      "destination": "/",
+      "permanent": true
     }
   ]
 }
